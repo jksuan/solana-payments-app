@@ -138,6 +138,7 @@ functions:
         Resource: '*'
   payment-transaction:
     handler: src/handlers/transactions/payment-transaction.paymentTransaction
+    timeout: 60 # Increase the timeout to 60 seconds
     events:
       - httpApi:
           path: /payment-transaction

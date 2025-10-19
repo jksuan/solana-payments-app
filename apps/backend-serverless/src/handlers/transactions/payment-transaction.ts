@@ -60,16 +60,25 @@ Sentry.AWSLambda.init({
 
 export const paymentTransaction = Sentry.AWSLambda.wrapHandler(
     async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+        console.log('Starting Payment...');
+
         const transactionRecordService = new TransactionRecordService(prisma);
+        // console.log('transactionRecordService:', transactionRecordService);
+        
         const paymentRecordService = new PaymentRecordService(prisma);
+        // console.log('paymentRecordService:', paymentRecordService);
+
         const merchantService = new MerchantService(prisma);
+        // console.log('merchantService:', merchantService);
+
         const websocketSessionService = new WebsocketSessionService(prisma);
+        // console.log('websocketSessionService:', websocketSessionService);
 
         if (event.body == null) {
             return createErrorResponse(new InvalidInputError('request body'));
         }
         const websocketUrl = process.env.WEBSOCKET_URL;
-
+        console.log('websocketUrl:', websocketUrl);
         if (websocketUrl == null) {
             return createErrorResponse(new MissingEnvError('websocket url'));
         }
@@ -86,19 +95,25 @@ export const paymentTransaction = Sentry.AWSLambda.wrapHandler(
         try {
             let transactionRequestBody = parseAndValidateTransactionRequestBody(JSON.parse(event.body));
             account = transactionRequestBody.account;
-
+            console.log('account:', account);
+            
             paymentRequest = parseAndValidatePaymentRequest(event.queryStringParameters);
+            console.log('paymentRequest:', paymentRequest);
 
             paymentRecord = await paymentRecordService.getPaymentRecord({
                 id: paymentRequest.paymentId,
             });
+            console.log('paymentRecord:', paymentRecord);
+            
             merchant = await merchantService.getMerchant({
                 id: paymentRecord.merchantId,
             });
+            console.log('merchant:', merchant);
 
             if (merchant.accessToken == null) {
                 throw new DatabaseAccessError('missing access token');
             }
+            // console.log('merchant.accessToken:', merchant.accessToken);
 
             websocketService = new WebSocketService(
                 websocketUrl,
@@ -107,13 +122,20 @@ export const paymentTransaction = Sentry.AWSLambda.wrapHandler(
                 },
                 websocketSessionService
             );
+            console.log('websocketService created');
 
+            console.log('Before sending transaction request started message...');
             await websocketService.sendTransacationRequestStartedMessage();
+            console.log('After sending transaction request started message.');
+
+            console.log('Before sending Solana Pay info message...');
             await sendSolanaPayInfoMessage(account, paymentRecord.id);
+            console.log('After sending Solana Pay info message.');
         } catch (error) {
             return createErrorResponse(error);
         }
 
+        // console.log('paymentRecord.test:', paymentRecord.test);
         // TODO: Clean this up
         if (paymentRecord.test == false) {
             const trmService = new TrmService();

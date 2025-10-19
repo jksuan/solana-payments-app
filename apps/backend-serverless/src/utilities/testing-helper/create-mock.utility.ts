@@ -1,4 +1,4 @@
-import { KybState, Merchant, PaymentRecord, PaymentRecordStatus, RefundRecord } from '@prisma/client';
+import { KybState, Merchant, PaymentRecord, PaymentRecordStatus, ProductStatus, RefundRecord } from '@prisma/client';
 import { TOKEN_PROGRAM_ID, createTransferCheckedInstruction } from '@solana/spl-token';
 import * as web3 from '@solana/web3.js';
 import { USDC_MINT } from '../../configs/tokens.config.js';
@@ -42,6 +42,7 @@ export const createMockMerchant = (merchantData: Partial<Merchant> = {}): Mercha
         dismissCompleted: merchantData.dismissCompleted ?? false,
         loyaltyProgram: merchantData.loyaltyProgram ?? 'none',
         pointsBack: merchantData.pointsBack ?? 0,
+        productStatus: merchantData.productStatus ?? ProductStatus.ready,
     };
 };
 

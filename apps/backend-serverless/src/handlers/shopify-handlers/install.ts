@@ -23,23 +23,26 @@ export const install = Sentry.AWSLambda.wrapHandler(
         const merchantService = new MerchantService(prisma);
 
         try {
+            console.log('test1'); // 添加这一行测试
             const parsedAppInstallQuery = await verifyAndParseShopifyInstallRequest(event.queryStringParameters);
-
+            console.log('parsedAppInstallQuery:', parsedAppInstallQuery); // 添加这一行测试
             const shop = parsedAppInstallQuery.shop;
             const newNonce = await generatePubkeyString();
             try {
+                console.log('shop:', shop); // 添加这一行测试
                 const merchant = await merchantService.getMerchant({ shop: shop });
                 await merchantService.updateMerchant(merchant, {
                     lastNonce: newNonce,
                 });
-            } catch {
+            } catch (error) {
+                console.log(error); // 添加这一行测试
                 const newMerchantId = await generatePubkeyString();
                 await merchantService.createMerchant(newMerchantId, shop, newNonce);
             }
 
             const signedCookie = createSignedShopifyCookie(newNonce);
             const cookieValue = `nonce=${signedCookie}; HttpOnly; Secure; SameSite=Lax`;
-
+            console.log('cookieValue:', cookieValue); // 添加这一行测试
             const redirectUrl = createShopifyOAuthGrantRedirectUrl(shop, newNonce);
 
             return {

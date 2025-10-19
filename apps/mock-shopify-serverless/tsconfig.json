@@ -2,7 +2,7 @@
     "compilerOptions": {
         "preserveConstEnums": true,
         "strictNullChecks": true,
-        "module": "es2015",
+        "module": "nodenext",
         "sourceMap": true,
         "allowJs": false,
         "target": "es5",

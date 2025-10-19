@@ -84,7 +84,12 @@ export const processTransaction = async (
         });
         // TODO Make this fetching user account better
         // @ts-ignore
-        await merchantService.recordCustomer(rpcTransaction._json.signers[1], record.merchantId, record.amount);
+        const message = rpcTransaction.compileMessage();
+        await merchantService.recordCustomer(
+            message.accountKeys[1].toString(),
+            record.merchantId,
+            record.amount
+        );
 
         const { products } = await createPaymentProductNftsResponse(record as PaymentRecord, merchantService);
 
@@ -92,12 +97,12 @@ export const processTransaction = async (
         console.log('rpc tx', rpcTransaction);
         try {
             const productPromises = products.map(async product => {
-                if (product.uri && rpcTransaction._json.signers[1]) {
+                if (product.uri && message.accountKeys[1]) {
                     const instructions = await mintCompressedNFT(
                         gasKeypair,
                         new web3.PublicKey(record.merchantId),
                         gasKeypair.publicKey,
-                        new web3.PublicKey(rpcTransaction._json.signers[1]),
+                        new web3.PublicKey(message.accountKeys[1]),
                         product.name,
                         product.uri
                     );

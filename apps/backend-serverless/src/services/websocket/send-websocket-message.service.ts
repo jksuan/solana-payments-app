@@ -40,7 +40,7 @@ export class WebSocketService<WebsocketQuery> {
                 };
                 await this.apiGatewayManagementApi.postToConnection(postParams).promise();
             } catch (error) {
-                console.log(error);
+                console.log("Error sending message to connectionId:", websocketSession.connectionId, error);
             }
         }
     };

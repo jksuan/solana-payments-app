@@ -14,10 +14,15 @@ Sentry.AWSLambda.init({
 export const disconnect = Sentry.AWSLambda.wrapHandler(
     async (event: APIGatewayProxyWebsocketEventV2): Promise<APIGatewayProxyResultV2> => {
         const websocketSessionService = new WebsocketSessionService(prisma);
+        const { connectionId } = event.requestContext;
 
-        await websocketSessionService.deleteWebsocketSession({
-            connectionId: event.requestContext.connectionId,
-        });
+        try {
+            await websocketSessionService.deleteWebsocketSession({
+                connectionId,
+            });
+        } catch (e) {
+            console.error(`Failed to delete websocket session for connectionId: ${connectionId}`, e);
+        }
 
         return {
             statusCode: 200,

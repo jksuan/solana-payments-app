@@ -14,7 +14,7 @@
         "seed": "tsx prisma/seed.ts"
     },
     "scripts": {
-        "start-ngrok": "ngrok http 4000 > /dev/null & echo $! > ngrok.pid",
+        "start-ngrok": "killall ngrok || true && ngrok http 4000 > /dev/null & echo $! > ngrok.pid",
         "setup:helius": "node scripts/helius.cjs",
         "predev": "yarn start-ngrok && yarn setup:helius",
         "dev": "serverless offline start --stage dev --config serverless.purple.yml & serverless offline start --stage dev --config serverless.green.yml",

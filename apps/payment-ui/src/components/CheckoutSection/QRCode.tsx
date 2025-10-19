@@ -1,5 +1,5 @@
 import { getPaymentId } from '@/features/payment-details/paymentDetailsSlice';
-import { buildTransactionRequestEndpoint } from '@/utility/endpoints.utility';
+import { buildTransactionRequestEndpoint, buildQRCodeTransactionRequestEndpoint } from '@/utility/endpoints.utility';
 import QRCodeStyling from '@solana/qr-code-styling';
 import { FC, useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
@@ -9,7 +9,10 @@ export const QRCode: FC = () => {
     const paymentId = useSelector(getPaymentId);
 
     // TODO: make sure there is a payment id and if not show a different image than QR Code
-    const endpoint = buildTransactionRequestEndpoint(paymentId ?? '');
+    // const endpoint = buildTransactionRequestEndpoint(paymentId ?? '');
+    
+    // 临时测试：使用 ngrok 公网地址生成二维码
+    const endpoint = buildQRCodeTransactionRequestEndpoint(paymentId ?? '');
     const url = `solana:${encodeURIComponent(endpoint)}`;
     const options = useMemo(() => createQROptions(url, 200, 'transparent', 'black'), [url, 200]);
 
